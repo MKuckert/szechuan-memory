@@ -5,11 +5,11 @@ namespace Szechuan.Memory;
 
 internal sealed class MemoryByteReader : IByteReader
 {
-    private readonly Memory<byte> memory;
+    private readonly ReadOnlyMemory<byte> memory;
     private readonly IEndianReader endianReader;
-    private Memory<byte> buffer;
+    private ReadOnlyMemory<byte> buffer;
 
-    public MemoryByteReader(Memory<byte> memory, IEndianReader endianReader)
+    public MemoryByteReader(ReadOnlyMemory<byte> memory, IEndianReader endianReader)
     {
         this.memory = buffer = memory;
         this.endianReader = endianReader;
