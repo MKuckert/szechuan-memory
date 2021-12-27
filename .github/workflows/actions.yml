@@ -1,4 +1,14 @@
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
 jobs:
   build:
     runs-on: ubuntu-latest
