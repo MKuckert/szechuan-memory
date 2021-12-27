@@ -10,6 +10,8 @@
     <ProjectGuid>{E2CCA450-F74C-4672-8EE5-89D5E6B85D22}</ProjectGuid>
     <Configurations>Test;Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
+    <RepositoryUrl>https://github.com/MKuckert/szechuan-memory</RepositoryUrl>
+    <Version>0.0.1</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <DefineConstants>$(DefineConstants);HAS_UNSAFE</DefineConstants>
@@ -21,18 +23,18 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="*.test.cs" />
-    <None Include="*.test.cs" />
+    <Compile Remove="*.test.cs"/>
+    <None Include="*.test.cs"/>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Test'">
     <PackageReference Include="coverlet.collector" Version="3.1.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
-    <PackageReference Include="NSubstitute" Version="4.2.2" />
-    <PackageReference Include="NUnit" Version="3.13.2" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.1.0" />
-    <Compile Include="*.test.cs" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0"/>
+    <PackageReference Include="NSubstitute" Version="4.2.2"/>
+    <PackageReference Include="NUnit" Version="3.13.2"/>
+    <PackageReference Include="NUnit3TestAdapter" Version="4.1.0"/>
+    <Compile Include="*.test.cs"/>
   </ItemGroup>
 </Project>

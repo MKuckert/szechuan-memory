@@ -1,0 +1,16 @@
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v1.9.0
+        with:
+          dotnet-version: '6.0.100'
+      - run: dotnet test --configuration Test src/Szechuan.Memory/Szechuan.Memory.csproj
+      - run: dotnet pack --configuration Release src/Szechuan.Memory/Szechuan.Memory.csproj
+      - run: dotnet nuget push src/Szechuan.Memory/bin/Release/*.nupkg --source https://nuget.pkg.github.com/mkuckert/index.json --api-key ${{ secrets.GITHUB_TOKEN }}
