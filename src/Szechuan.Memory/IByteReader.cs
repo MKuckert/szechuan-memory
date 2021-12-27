@@ -2,6 +2,8 @@ namespace Szechuan.Memory;
 
 public interface IByteReader
 {
+    ReadOnlyMemory<byte> UnreadMemory { get; }
+
     sbyte ReadSByte();
     byte ReadByte();
     short ReadInt16();

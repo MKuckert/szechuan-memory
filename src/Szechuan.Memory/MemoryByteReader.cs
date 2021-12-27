@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Szechuan.Memory;
 
-internal sealed class MemoryByteReader : IByteReader, IMemoryHolder
+internal sealed class MemoryByteReader : IByteReader
 {
     private readonly Memory<byte> memory;
     private readonly IEndianReader endianReader;
@@ -231,20 +231,6 @@ internal sealed class MemoryByteReader : IByteReader, IMemoryHolder
     private void Advance(int by)
         => buffer = buffer[by..];
 
-    public int Length
-        => memory.Length - buffer.Length;
-
-    public Memory<byte> Memory
-    {
-        get
-        {
-            var length = Length;
-            if (length == 0)
-            {
-                return Memory<byte>.Empty;
-            }
-
-            return memory[..length];
-        }
-    }
+    public ReadOnlyMemory<byte> UnreadMemory
+        => buffer;
 }

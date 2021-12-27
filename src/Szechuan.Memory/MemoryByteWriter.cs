@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Szechuan.Memory;
 
-internal sealed class MemoryByteWriter : IByteWriter, IMemoryHolder
+internal sealed class MemoryByteWriter : IByteWriter
 {
     private readonly Memory<byte> memory;
     private readonly IEndianWriter endianWriter;

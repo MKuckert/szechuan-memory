@@ -5,6 +5,9 @@ namespace Szechuan.Memory;
 // TODO Write(string, encoding)
 public interface IByteWriter
 {
+    Memory<byte> Memory { get; }
+    int Length { get; }
+
     IByteWriter Write(sbyte value);
     IByteWriter Write(byte value);
     IByteWriter Write(short value);
