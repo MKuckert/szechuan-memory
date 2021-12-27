@@ -2,6 +2,8 @@ namespace Szechuan.Memory;
 
 internal sealed class ManagedBigEndian : IEndianness
 {
+    public ByteOrder ByteOrder { get; } = ByteOrder.BIG_ENDIAN;
+
     public void Write(Span<byte> destination, sbyte value)
     {
         EnsureSize(destination, value, sizeof(sbyte));
@@ -108,7 +110,7 @@ internal sealed class ManagedBigEndian : IEndianness
     {
         EnsureSize(destination, value, sizeof(float));
 
-        // We have no better way to get the bytes for a double yet so we're falling back to using the BitConverter and reversing if it's the wrong byte order
+        // We have no better way to get the bytes for a float yet so we're falling back to using the BitConverter and reversing if it's the wrong byte order
         if (!BitConverter.TryWriteBytes(destination, value))
         {
             throw new FormatException($"Can't write float value {value}: Bit conversion failed");
@@ -127,7 +129,7 @@ internal sealed class ManagedBigEndian : IEndianness
         // We have no better way to get the bytes for a double yet so we're falling back to using the BitConverter and reversing if it's the wrong byte order
         if (!BitConverter.TryWriteBytes(destination, value))
         {
-            throw new FormatException($"Can't write float value {value}: Bit conversion failed");
+            throw new FormatException($"Can't write double value {value}: Bit conversion failed");
         }
 
         if (BitConverter.IsLittleEndian)
@@ -142,11 +144,158 @@ internal sealed class ManagedBigEndian : IEndianness
         destination[0] = value ? (byte)1 : (byte)0;
     }
 
+    public sbyte ReadSByte(ReadOnlySpan<byte> source)
+    {
+        EnsureSize<sbyte>(source, sizeof(sbyte));
+        return (sbyte)source[0];
+    }
+
+    public byte ReadByte(ReadOnlySpan<byte> source)
+    {
+        EnsureSize<byte>(source, sizeof(byte));
+        return source[0];
+    }
+
+    public short ReadInt16(ReadOnlySpan<byte> source)
+    {
+        EnsureSize<short>(source, sizeof(short));
+        return (short)(
+            (source[0] << 8)
+            | source[1]);
+    }
+
+    public ushort ReadUInt16(ReadOnlySpan<byte> source)
+    {
+        EnsureSize<ushort>(source, sizeof(ushort));
+        return (ushort)(
+            (source[0] << 8)
+            | source[1]);
+    }
+
+    public int ReadInt32(ReadOnlySpan<byte> source)
+    {
+        EnsureSize<int>(source, sizeof(int));
+        return (source[0] << 24)
+               | (source[1] << 16)
+               | (source[2] << 8)
+               | source[3];
+    }
+
+    public uint ReadUInt32(ReadOnlySpan<byte> source)
+    {
+        EnsureSize<uint>(source, sizeof(uint));
+        return (uint)(
+            (source[0] << 24)
+            | (source[1] << 16)
+            | (source[2] << 8)
+            | source[3]);
+    }
+
+    public long ReadInt64(ReadOnlySpan<byte> source)
+    {
+        EnsureSize<long>(source, sizeof(long));
+        return ((long)source[0] << 56)
+               | ((long)source[1] << 48)
+               | ((long)source[2] << 40)
+               | ((long)source[3] << 32)
+               | ((long)source[4] << 24)
+               | ((long)source[5] << 16)
+               | ((long)source[6] << 8)
+               | source[7];
+    }
+
+    public ulong ReadUInt64(ReadOnlySpan<byte> source)
+    {
+        EnsureSize<ulong>(source, sizeof(ulong));
+        return ((ulong)source[0] << 56)
+               | ((ulong)source[1] << 48)
+               | ((ulong)source[2] << 40)
+               | ((ulong)source[3] << 32)
+               | ((ulong)source[4] << 24)
+               | ((ulong)source[5] << 16)
+               | ((ulong)source[6] << 8)
+               | source[7];
+    }
+
+    public nint ReadNInt(ReadOnlySpan<byte> source)
+
+        // We're using IntPtr.Size instead of sizeof(nint) as the later one is unsafe code
+        => IntPtr.Size switch
+        {
+            sizeof(int) => ReadInt32(source),
+            sizeof(long) => (nint)ReadInt64(source),
+            _ => throw new FormatException($"Can't read nint value: Unable to decide whether it's a 32 or 64 bit type")
+        };
+
+    public nuint ReadNUInt(ReadOnlySpan<byte> source)
+
+        // We're using IntPtr.Size instead of sizeof(nuint) as the later one is unsafe code
+        => UIntPtr.Size switch
+        {
+            sizeof(uint) => ReadUInt32(source),
+            sizeof(ulong) => (nuint)ReadUInt64(source),
+            _ => throw new FormatException($"Can't read nuint value: Unable to decide whether it's a 32 or 64 bit type")
+        };
+
+    public float ReadFloat(ReadOnlySpan<byte> source)
+    {
+        const int SIZE = sizeof(float);
+        EnsureSize<float>(source, SIZE);
+
+        // We have no better way to get the bytes for a float yet so we're falling back to using the BitConverter and reversing if it's the wrong byte order
+        if (!BitConverter.IsLittleEndian)
+        {
+            return BitConverter.ToSingle(source);
+        }
+
+        Span<byte> workbench = stackalloc byte[SIZE];
+        source[..SIZE].CopyTo(workbench);
+        workbench.Reverse();
+        return BitConverter.ToSingle(workbench);
+    }
+
+    public double ReadDouble(ReadOnlySpan<byte> source)
+    {
+        const int SIZE = sizeof(double);
+        EnsureSize<double>(source, SIZE);
+
+        // We have no better way to get the bytes for a float yet so we're falling back to using the BitConverter and reversing if it's the wrong byte order
+        if (!BitConverter.IsLittleEndian)
+        {
+            return BitConverter.ToDouble(source);
+        }
+
+        Span<byte> workbench = stackalloc byte[SIZE];
+        source[..SIZE].CopyTo(workbench);
+        workbench.Reverse();
+        return BitConverter.ToDouble(workbench);
+    }
+
+    public bool ReadBool(ReadOnlySpan<byte> source)
+    {
+        EnsureSize<bool>(source, sizeof(bool));
+        return source[0] != 0;
+    }
+
+    public ReadOnlySpan<byte> Read(ReadOnlySpan<byte> source, int count)
+    {
+        EnsureSize<byte[]>(source, count);
+        return source[..count];
+    }
+
+    private static void EnsureSize<T>(ReadOnlySpan<byte> source, int expectedSize)
+    {
+        if (source.Length < expectedSize)
+        {
+            throw new InsufficientMemoryException($"Can't read {typeof(T).Name} value: source is too small. Expected at least {expectedSize} bytes but got only {source.Length}");
+        }
+    }
+
     private static void EnsureSize<T>(Span<byte> destination, T value, int expectedSize)
     {
         if (destination.Length < expectedSize)
         {
-            throw new FormatException($"Can't write {typeof(T).Name} value {value}: destination is too small. Expected at least {expectedSize} bytes but got only {destination.Length}");
+            throw new InsufficientMemoryException($"Can't write {typeof(T).Name} value {value}: destination is too small. Expected at least {expectedSize} bytes but got only {destination.Length}");
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Szechuan.Memory;
 
-[TestFixtureSource(nameof(BitConverters))]
+[TestFixtureSource(typeof(BitConverters), nameof(BitConverters.LittleEndian))]
 [TestOf(typeof(MemoryByteWriter))]
 [TestOf(typeof(ManagedLittleEndian))]
 [TestOf(typeof(NativeLittleEndian))]
@@ -16,27 +16,14 @@ public sealed class MemoryByteWriterLittleEndianTest
     public MemoryByteWriterLittleEndianTest(IEndianWriter endianWriter)
         => this.endianWriter = endianWriter;
 
-    private MemoryByteWriter CreateSut()
-        => new(memory, endianWriter);
+    private MemoryByteWriter CreateSut(byte[]? mem = null)
+        => new(mem ?? memory, endianWriter);
 
     private MemoryByteWriter Do(Action<MemoryByteWriter> callback)
     {
         var sut = CreateSut();
         callback(sut);
         return sut;
-    }
-
-    private static IEnumerable<IEndianWriter> BitConverters
-    {
-        get
-        {
-            if (BitConverter.IsLittleEndian)
-            {
-                yield return new NativeLittleEndian();
-            }
-
-            yield return new ManagedLittleEndian();
-        }
     }
 
     [TestCase(sbyte.MinValue, new byte[] { MINUS_SIGN })]
@@ -118,13 +105,11 @@ public sealed class MemoryByteWriterLittleEndianTest
             expected);
     }
 
-    [TestCase(100, 42u, new byte[] { 100, 0, 0, 0, 42, 0, 0, 0 })]
-    public void Write_SingleValue_TestStruct1(int inputA, uint inputB, byte[] expected)
+    [Test]
+    public void Write_WithDestinationTooSmall_Fails()
     {
-        var input = new TestStruct1(inputA, inputB);
-        var sut = CreateSut();
-        sut.WriteStruct(ref input);
-        Assertions.AssertEquivalent(sut, expected);
+        var sut = CreateSut(new byte[2]);
+        Assert.Throws<InsufficientMemoryException>(() => sut.Write(int.MinValue));
     }
 
     private void AssertEquivalent(Action<MemoryByteWriter> actual, IEnumerable<byte> expected)

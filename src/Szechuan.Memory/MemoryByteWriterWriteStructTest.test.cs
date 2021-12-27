@@ -9,7 +9,7 @@ public sealed class MemoryByteWriterWriteStructTest
     private readonly byte[] memory = new byte[1000];
 
     private MemoryByteWriter CreateSut()
-        => new(memory, ByteOrder.CurrentArchitecture);
+        => new(memory, Endian.CurrentArchitecture);
 
     [TestCase(100, 42u, new byte[] { 100, 0, 0, 0, 42, 0, 0, 0 })]
     public void Write_SingleValue_TestStruct1(int inputA, uint inputB, byte[] expected)

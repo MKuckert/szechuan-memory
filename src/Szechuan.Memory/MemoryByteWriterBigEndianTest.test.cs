@@ -2,7 +2,7 @@
 
 namespace Szechuan.Memory;
 
-[TestFixtureSource(nameof(BitConverters))]
+[TestFixtureSource(typeof(BitConverters), nameof(BitConverters.BigEndian))]
 [TestOf(typeof(MemoryByteWriter))]
 [TestOf(typeof(ManagedBigEndian))]
 [TestOf(typeof(NativeBigEndian))]
@@ -16,27 +16,14 @@ public sealed class MemoryByteWriterBigEndianTest
     public MemoryByteWriterBigEndianTest(IEndianWriter endianWriter)
         => this.endianWriter = endianWriter;
 
-    private MemoryByteWriter CreateSut()
-        => new(memory, endianWriter);
+    private MemoryByteWriter CreateSut(byte[]? mem = null)
+        => new(mem ?? memory, endianWriter);
 
     private MemoryByteWriter Do(Action<MemoryByteWriter> callback)
     {
         var sut = CreateSut();
         callback(sut);
         return sut;
-    }
-
-    private static IEnumerable<IEndianWriter> BitConverters
-    {
-        get
-        {
-            if (!BitConverter.IsLittleEndian)
-            {
-                yield return new NativeBigEndian();
-            }
-
-            yield return new ManagedBigEndian();
-        }
     }
 
     [TestCase(sbyte.MinValue, new byte[] { MINUS_SIGN })]
@@ -116,6 +103,13 @@ public sealed class MemoryByteWriterBigEndianTest
                 .Write(input1)
                 .Write(input2),
             expected);
+    }
+
+    [Test]
+    public void Write_WithDestinationTooSmall_Fails()
+    {
+        var sut = CreateSut(new byte[2]);
+        Assert.Throws<InsufficientMemoryException>(() => sut.Write(int.MinValue));
     }
 
     private void AssertEquivalent(Action<MemoryByteWriter> actual, IEnumerable<byte> expected)

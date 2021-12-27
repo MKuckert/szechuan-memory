@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace Szechuan.Memory;
@@ -17,6 +18,7 @@ public enum UShortValues : ushort
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
+[ExcludeFromCodeCoverage]
 public readonly struct TestStruct1 : IEquatable<TestStruct1>
 {
     public int A { get; }
@@ -40,6 +42,7 @@ public readonly struct TestStruct1 : IEquatable<TestStruct1>
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
+[ExcludeFromCodeCoverage]
 public readonly ref struct TestStruct2
 {
     public readonly ReadOnlySpan<byte> Content;

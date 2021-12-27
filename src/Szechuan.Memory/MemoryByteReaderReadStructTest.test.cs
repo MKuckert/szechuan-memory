@@ -9,7 +9,7 @@ public sealed class MemoryByteReaderReadStructTest
     private readonly byte[] memory = new byte[1000];
 
     private MemoryByteReader CreateSut()
-        => new(memory, ByteOrder.CurrentArchitecture);
+        => new(memory, Endian.CurrentArchitecture);
 
     [TestCase(new byte[] { 100, 0, 0, 0, 42, 0, 0, 0 }, 100, 42u)]
     public void Read_SingleValue_TestStruct1(byte[] actual, int expectedA, uint expectedB)

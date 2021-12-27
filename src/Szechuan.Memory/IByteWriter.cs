@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace Szechuan.Memory;
 
+// TODO Write(string, encoding)
 public interface IByteWriter
 {
     IByteWriter Write(sbyte value);
@@ -36,6 +37,8 @@ public interface IByteWriter
     /// types.</exception>
     /// <exception cref="InsufficientMemoryException">There's not enough memory to write the given struct into the
     /// underlying memory.</exception>
+#pragma warning disable CA1045 // It's expected design to have this struct as a ref
     IByteWriter WriteStruct<TStruct>(ref TStruct value)
         where TStruct : struct;
+#pragma warning restore CA1045
 }

@@ -9,7 +9,7 @@ public sealed class MemoryByteWriterInsufficientMemoryTest
     private readonly byte[] memory = new byte[1];
 
     private MemoryByteWriter CreateSut()
-        => new(memory, ByteOrder.CurrentArchitecture);
+        => new(memory, Endian.CurrentArchitecture);
 
     [Test]
     public void Write_WithNoMoreMemory_ThrowsInsufficientMemoryException()

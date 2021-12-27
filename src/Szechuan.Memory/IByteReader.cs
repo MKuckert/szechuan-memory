@@ -4,12 +4,12 @@ public interface IByteReader
 {
     sbyte ReadSByte();
     byte ReadByte();
-    short ReadShort();
-    ushort ReadUShort();
-    int ReadInt();
-    uint ReadUInt();
-    long ReadLong();
-    ulong ReadULong();
+    short ReadInt16();
+    ushort ReadUInt16();
+    int ReadInt32();
+    uint ReadUInt32();
+    long ReadInt64();
+    ulong ReadUInt64();
     nint ReadNInt();
     nuint ReadNUInt();
     float ReadFloat();
