@@ -1,0 +1,22 @@
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup dotnet SDK
+        uses: actions/setup-dotnet@v1.9.0
+        with:
+          dotnet-version: '6.0.100'
+      - name: Create nuget package
+        run: dotnet pack --configuration Release src/Szechuan.Memory/Szechuan.Memory.csproj
+      - name: Push to nuget.org
+        run: dotnet nuget push src/Szechuan.Memory/bin/Release/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_APIKEY }}
