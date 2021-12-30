@@ -11,7 +11,7 @@
     <Configurations>Test;Debug;Release</Configurations>
     <Platforms>AnyCPU</Platforms>
     <RepositoryUrl>https://github.com/MKuckert/szechuan-memory</RepositoryUrl>
-    <Version>0.0.5</Version>
+    <Version>0.0.6</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <DefineConstants>$(DefineConstants);HAS_UNSAFE</DefineConstants>

@@ -4,6 +4,11 @@ on:
       - '**'
     tags-ignore:
       - '**'
+  pull_request:
+    branches-ignore:
+      - '**'
+    tags-ignore:
+      - '**'
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -16,7 +21,9 @@ jobs:
         uses: actions/setup-dotnet@v1.9.0
         with:
           dotnet-version: '6.0.100'
-      - name: Create nuget package
+      - name: Create multitarget nuget package
         run: dotnet pack --configuration Release src/Szechuan.Memory/Szechuan.Memory.csproj
+      - name: Create netstandard-only nuget package
+        run: dotnet pack --configuration Release src/Szechuan.Memory/Szechuan.Memory.csproj -p:TargetFrameworks=netstandard2.1 -p:PackageId=Szechuan.Memory.NetStandardOnly --no-restore
       - name: Push to nuget.org
         run: dotnet nuget push src/Szechuan.Memory/bin/Release/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_APIKEY }}
