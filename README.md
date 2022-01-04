@@ -1,5 +1,7 @@
 # 📂 Szechuan Memory
 
+[![Szechuan.Memory](https://img.shields.io/nuget/v/Szechuan.Memory.svg?style=flat)](https://www.nuget.org/packages/Szechuan.Memory/)
+
 Provides low-level primitives to write and read bytes efficiently into underlying memory. Aims for low allocations and a good API.
 
 The library handles most primitive values like differently sized integers, `struct`s and enums. It's centered around the possible byte orders _little endian_ and _big endian_. The underlying memory is accessed using the dotnet `Span` API to lower memory allocations and aim to work as efficient as possible while providing a simple, good usable API.
