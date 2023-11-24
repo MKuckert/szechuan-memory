@@ -7,7 +7,8 @@ internal abstract class NativeEndian : IEndianness
         var isCorrectEndianness = supportedByteOrder == ByteOrder.LITTLE_ENDIAN && BitConverter.IsLittleEndian;
         if (!isCorrectEndianness)
         {
-            throw new InvalidOperationException($"Can use {GetType().Name} on a system with {supportedByteOrder} architecture only. Use a managed variant instead");
+            throw new InvalidOperationException(
+                $"Can use {GetType().Name} on a system with {supportedByteOrder} architecture only. Use a managed variant instead");
         }
 
         ByteOrder = supportedByteOrder;
@@ -17,18 +18,22 @@ internal abstract class NativeEndian : IEndianness
 
     public void Write(Span<byte> destination, sbyte value)
     {
-        if (!BitConverter.TryWriteBytes(destination, value))
+        if (destination.Length < 1)
         {
             throw CantWrite(destination, value, sizeof(sbyte));
         }
+
+        destination[0] = (byte)value;
     }
 
     public void Write(Span<byte> destination, byte value)
     {
-        if (!BitConverter.TryWriteBytes(destination, value))
+        if (destination.Length < 1)
         {
-            throw CantWrite(destination, value, sizeof(byte));
+            throw CantWrite(destination, value, sizeof(sbyte));
         }
+
+        destination[0] = value;
     }
 
     public void Write(Span<byte> destination, short value)
@@ -91,7 +96,8 @@ internal abstract class NativeEndian : IEndianness
                 Write(destination, (long)value);
                 break;
             default:
-                throw new FormatException($"Can't write nint value {value}: Unable to decide whether it's a 32 or 64 bit type");
+                throw new FormatException(
+                    $"Can't write nint value {value}: Unable to decide whether it's a 32 or 64 bit type");
         }
     }
 
@@ -107,7 +113,8 @@ internal abstract class NativeEndian : IEndianness
                 Write(destination, (ulong)value);
                 break;
             default:
-                throw new FormatException($"Can't write nuint value {value}: Unable to decide whether it's a 32 or 64 bit type");
+                throw new FormatException(
+                    $"Can't write nuint value {value}: Unable to decide whether it's a 32 or 64 bit type");
         }
     }
 
@@ -136,7 +143,8 @@ internal abstract class NativeEndian : IEndianness
     }
 
     private static FormatException CantWrite<T>(Span<byte> destination, T value, int expectedSize)
-        => new($"Can't write {typeof(T).Name} value {value}: destination is too small. Expected at least {expectedSize} bytes but got only {destination.Length}");
+        => new(
+            $"Can't write {typeof(T).Name} value {value}: destination is too small. Expected at least {expectedSize} bytes but got only {destination.Length}");
 
     public sbyte ReadSByte(ReadOnlySpan<byte> source)
         => (sbyte)source[0];
@@ -195,18 +203,6 @@ internal abstract class NativeEndian : IEndianness
         => source[..count];
 }
 
-internal sealed class NativeBigEndian : NativeEndian
-{
-    public NativeBigEndian()
-        : base(ByteOrder.BIG_ENDIAN)
-    {
-    }
-}
+internal sealed class NativeBigEndian() : NativeEndian(ByteOrder.BIG_ENDIAN);
 
-internal sealed class NativeLittleEndian : NativeEndian
-{
-    public NativeLittleEndian()
-        : base(ByteOrder.LITTLE_ENDIAN)
-    {
-    }
-}
+internal sealed class NativeLittleEndian() : NativeEndian(ByteOrder.LITTLE_ENDIAN);

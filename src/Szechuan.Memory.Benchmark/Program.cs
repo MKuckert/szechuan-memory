@@ -3,9 +3,9 @@ using BenchmarkDotNet.Running;
 
 T FromBytes<T>(byte[] arr) where T : struct
 {
-    T str = default(T);
+    var str = default(T);
 
-    GCHandle h = default(GCHandle);
+    var h = default(GCHandle);
 
     try
     {
