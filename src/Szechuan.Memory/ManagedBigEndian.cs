@@ -2,7 +2,7 @@ namespace Szechuan.Memory;
 
 internal sealed class ManagedBigEndian : IEndianness
 {
-    public ByteOrder ByteOrder { get; } = ByteOrder.BIG_ENDIAN;
+    public ByteOrder ByteOrder => ByteOrder.BIG_ENDIAN;
 
     public void Write(Span<byte> destination, sbyte value)
     {

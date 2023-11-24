@@ -6,18 +6,14 @@ namespace Szechuan.Memory;
 [TestOf(typeof(MemoryByteWriter))]
 [TestOf(typeof(ManagedBigEndian))]
 [TestOf(typeof(NativeBigEndian))]
-public sealed class MemoryByteWriterBigEndianTest
+public sealed class MemoryByteWriterBigEndianTest(IEndianWriter writer)
 {
     private const int MINUS_SIGN = 0b1000_0000;
 
-    private readonly IEndianWriter endianWriter;
     private readonly byte[] memory = new byte[1000];
 
-    public MemoryByteWriterBigEndianTest(IEndianWriter endianWriter)
-        => this.endianWriter = endianWriter;
-
     private MemoryByteWriter CreateSut(byte[]? mem = null)
-        => new(mem ?? memory, endianWriter);
+        => new(mem ?? memory, writer);
 
     private MemoryByteWriter Do(Action<MemoryByteWriter> callback)
     {

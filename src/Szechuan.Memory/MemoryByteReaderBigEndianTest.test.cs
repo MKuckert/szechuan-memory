@@ -6,18 +6,14 @@ namespace Szechuan.Memory;
 [TestOf(typeof(MemoryByteReader))]
 [TestOf(typeof(ManagedBigEndian))]
 [TestOf(typeof(NativeBigEndian))]
-public sealed class MemoryByteReaderBigEndianTest
+public sealed class MemoryByteReaderBigEndianTest(IEndianReader reader)
 {
     private const int MINUS_SIGN = 0b1000_0000;
 
-    private readonly IEndianReader endianReader;
     private readonly byte[] memory = new byte[1000];
 
-    public MemoryByteReaderBigEndianTest(IEndianReader endianReader)
-        => this.endianReader = endianReader;
-
     private MemoryByteReader CreateSut(byte[]? mem = null)
-        => new(mem ?? memory, endianReader);
+        => new(mem ?? memory, reader);
 
     [TestCase(sbyte.MinValue, new byte[] { MINUS_SIGN })]
     [TestCase(sbyte.MaxValue, new byte[] { 0x7F })]

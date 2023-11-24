@@ -1,5 +1,3 @@
 namespace Szechuan.Memory;
 
-public interface IEndianness : IEndianWriter, IEndianReader
-{
-}
+public interface IEndianness : IEndianWriter, IEndianReader;

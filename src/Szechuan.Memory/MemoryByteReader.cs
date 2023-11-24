@@ -3,23 +3,13 @@ using System.Runtime.InteropServices;
 
 namespace Szechuan.Memory;
 
-internal sealed class MemoryByteReader : IByteReader
+internal sealed class MemoryByteReader(ReadOnlyMemory<byte> memory, IEndianReader reader) : IByteReader
 {
-    private readonly ReadOnlyMemory<byte> memory;
-    private readonly IEndianReader endianReader;
-    private ReadOnlyMemory<byte> buffer;
-
-    public MemoryByteReader(ReadOnlyMemory<byte> memory, IEndianReader endianReader)
-    {
-        this.memory = buffer = memory;
-        this.endianReader = endianReader;
-    }
-
     public sbyte ReadSByte()
     {
         const int SIZE = sizeof(sbyte);
         EnsureBufferSize(SIZE);
-        var result = endianReader.ReadSByte(buffer.Span);
+        var result = reader.ReadSByte(memory.Span);
         Advance(SIZE);
         return result;
     }
@@ -28,7 +18,7 @@ internal sealed class MemoryByteReader : IByteReader
     {
         const int SIZE = sizeof(byte);
         EnsureBufferSize(SIZE);
-        var result = endianReader.ReadByte(buffer.Span);
+        var result = reader.ReadByte(memory.Span);
         Advance(SIZE);
         return result;
     }
@@ -37,7 +27,7 @@ internal sealed class MemoryByteReader : IByteReader
     {
         const int SIZE = sizeof(short);
         EnsureBufferSize(SIZE);
-        var result = endianReader.ReadInt16(buffer.Span);
+        var result = reader.ReadInt16(memory.Span);
         Advance(SIZE);
         return result;
     }
@@ -46,7 +36,7 @@ internal sealed class MemoryByteReader : IByteReader
     {
         const int SIZE = sizeof(ushort);
         EnsureBufferSize(SIZE);
-        var result = endianReader.ReadUInt16(buffer.Span);
+        var result = reader.ReadUInt16(memory.Span);
         Advance(SIZE);
         return result;
     }
@@ -55,7 +45,7 @@ internal sealed class MemoryByteReader : IByteReader
     {
         const int SIZE = sizeof(int);
         EnsureBufferSize(SIZE);
-        var result = endianReader.ReadInt32(buffer.Span);
+        var result = reader.ReadInt32(memory.Span);
         Advance(SIZE);
         return result;
     }
@@ -64,7 +54,7 @@ internal sealed class MemoryByteReader : IByteReader
     {
         const int SIZE = sizeof(uint);
         EnsureBufferSize(SIZE);
-        var result = endianReader.ReadUInt32(buffer.Span);
+        var result = reader.ReadUInt32(memory.Span);
         Advance(SIZE);
         return result;
     }
@@ -73,7 +63,7 @@ internal sealed class MemoryByteReader : IByteReader
     {
         const int SIZE = sizeof(long);
         EnsureBufferSize(SIZE);
-        var result = endianReader.ReadInt64(buffer.Span);
+        var result = reader.ReadInt64(memory.Span);
         Advance(SIZE);
         return result;
     }
@@ -82,7 +72,7 @@ internal sealed class MemoryByteReader : IByteReader
     {
         const int SIZE = sizeof(ulong);
         EnsureBufferSize(SIZE);
-        var result = endianReader.ReadUInt64(buffer.Span);
+        var result = reader.ReadUInt64(memory.Span);
         Advance(SIZE);
         return result;
     }
@@ -92,7 +82,7 @@ internal sealed class MemoryByteReader : IByteReader
         // We're using IntPtr.Size instead of sizeof(nint) as the later one is unsafe code
         var size = IntPtr.Size;
         EnsureBufferSize(size);
-        var result = endianReader.ReadNInt(buffer.Span);
+        var result = reader.ReadNInt(memory.Span);
         Advance(size);
         return result;
     }
@@ -102,7 +92,7 @@ internal sealed class MemoryByteReader : IByteReader
         // We're using UIntPtr.Size instead of sizeof(nuint) as the later one is unsafe code
         var size = UIntPtr.Size;
         EnsureBufferSize(size);
-        var result = endianReader.ReadNUInt(buffer.Span);
+        var result = reader.ReadNUInt(memory.Span);
         Advance(size);
         return result;
     }
@@ -111,7 +101,7 @@ internal sealed class MemoryByteReader : IByteReader
     {
         const int SIZE = sizeof(float);
         EnsureBufferSize(SIZE);
-        var result = endianReader.ReadFloat(buffer.Span);
+        var result = reader.ReadFloat(memory.Span);
         Advance(SIZE);
         return result;
     }
@@ -120,7 +110,7 @@ internal sealed class MemoryByteReader : IByteReader
     {
         const int SIZE = sizeof(double);
         EnsureBufferSize(SIZE);
-        var result = endianReader.ReadDouble(buffer.Span);
+        var result = reader.ReadDouble(memory.Span);
         Advance(SIZE);
         return result;
     }
@@ -129,7 +119,7 @@ internal sealed class MemoryByteReader : IByteReader
     {
         const int SIZE = sizeof(bool);
         EnsureBufferSize(SIZE);
-        var result = endianReader.ReadBool(buffer.Span);
+        var result = reader.ReadBool(memory.Span);
         Advance(SIZE);
         return result;
     }
@@ -137,7 +127,7 @@ internal sealed class MemoryByteReader : IByteReader
     public ReadOnlySpan<byte> Read(int count)
     {
         EnsureBufferSize(count);
-        var result = endianReader.Read(buffer.Span, count);
+        var result = reader.Read(memory.Span, count);
         Advance(count);
         return result;
     }
@@ -213,7 +203,7 @@ internal sealed class MemoryByteReader : IByteReader
         var size = Unsafe.SizeOf<TStruct>();
         EnsureBufferSize(size);
 
-        var value = MemoryMarshal.Read<TStruct>(buffer.Span);
+        var value = MemoryMarshal.Read<TStruct>(memory.Span);
 
         Advance(size);
         return value;
@@ -221,16 +211,16 @@ internal sealed class MemoryByteReader : IByteReader
 
     private void EnsureBufferSize(int expectedSize)
     {
-        if (buffer.Length < expectedSize)
+        if (memory.Length < expectedSize)
         {
-            throw new InsufficientMemoryException($"Can't write a given value. Expected to have at least {expectedSize} more bytes but there are only {buffer.Length} bytes left");
+            throw new InsufficientMemoryException($"Can't write a given value. Expected to have at least {expectedSize} more bytes but there are only {memory.Length} bytes left");
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Advance(int by)
-        => buffer = buffer[by..];
+        => memory = memory[by..];
 
     public ReadOnlyMemory<byte> UnreadMemory
-        => buffer;
+        => memory;
 }
